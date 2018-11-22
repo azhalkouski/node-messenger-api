@@ -1,0 +1,32 @@
+{
+  "name": "messenger-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongoose"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azhalkouski/node-messenger-api.git"
+  },
+  "author": "azhalkouski@gmail.com",
+  "bugs": {
+    "url": "https://github.com/azhalkouski/node-messenger-api/issues"
+  },
+  "homepage": "https://github.com/azhalkouski/node-messenger-api#readme",
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/register": "^7.0.0"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
