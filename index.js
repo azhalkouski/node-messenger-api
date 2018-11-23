@@ -4,4 +4,6 @@ require("@babel/register");
 
 const app = require('./server');
 
-app.listen(3000);
+app.listen(app.get('port'));
+
+console.log(`listening on port ${app.get('port')}`);
