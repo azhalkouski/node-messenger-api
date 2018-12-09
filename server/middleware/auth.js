@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 
 export const verifyToken = (req, res, next) => {
-  const token = req.headers.token;
+  const token = req.headers.authorization.split('Bearer ')[1];
 
   if (!token) {
     return res.status(403).json({
@@ -10,14 +10,14 @@ export const verifyToken = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, config.jwt.secret, { aud: config.jwt.audience }, (err, decoded) => {
-    if (err) return res.status(403).json({ message: 'Failed to authenticate token.' })
+  jwt.verify(token, config.jwt.secret, { audience: config.jwt.audience }, (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'Failed to authenticate token.' });
 
     req.user = {
       id: decoded._id,
-      username: decoded.username,
+      email: decoded.email,
       password: decoded.password,
-      aud: decoded.aud
+      audience: decoded.audience
     };
 
     next();
