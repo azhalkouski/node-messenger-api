@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 
-export const ensureAuthenticated = (req, res, next) => {
-  const token = req.body.token;
+export const verifyToken = (req, res, next) => {
+  const token = req.headers.token;
 
   if (!token) {
     return res.status(403).json({
@@ -10,10 +10,11 @@ export const ensureAuthenticated = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, config.secret, (err, decoded) => {
+  jwt.verify(token, config.jwt.secret, { aud: config.jwt.audience }, (err, decoded) => {
     if (err) return res.status(403).json({ message: 'Failed to authenticate token.' })
 
-    req.user = user;
+    req.user = decoded;
+
     next();
   })
 };

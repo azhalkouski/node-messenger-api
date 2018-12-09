@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
 import config from '../../config';
+import jwt from 'jsonwebtoken';
+import { verifyToken } from '../middleware/auth';
 import User from '../models/User';
-import { ensureAuthenticated } from '../middleware/auth';
+import Chat from '../models/Chat';
+
 const router = new Router();
 
 router.post('/authenticate', function(req, res) {
@@ -20,7 +22,7 @@ router.post('/authenticate', function(req, res) {
       }
 
       try {
-        const token = jwt.sign(user, config.secret);
+        const token = jwt.sign(user, config.jwt.secret, { aud: config.jwt.audience });
         res.status(200).json({
           token,
         });
@@ -31,7 +33,7 @@ router.post('/authenticate', function(req, res) {
     .catch(err => console.log(err));
 });
 
-router.get('/users', ensureAuthenticated, function(req, res, next) {
+router.get('/users', verifyToken, function(req, res, next) {
 
   User.find({}, function(err, users) {
 
@@ -49,7 +51,7 @@ router.get('/testUsers', function(req, res, next) {
   });
 
   user.save(err => {
-    // * OK: been caught by main error handler
+    
     if (err) return next(err);
 
     console.log('User saved successfully');
@@ -57,4 +59,24 @@ router.get('/testUsers', function(req, res, next) {
   });
 });
 
-module.exports = router;
+router.get('/chats', verifyToken, (req, res) => {
+  const userId = req.user._id;
+
+  Chat.find({ userIds: userId })
+    .exec()
+    .then(chats => res.status(200).json(chats));
+});
+
+router.post('/chats', verifyToken, (req, res) => {
+  const userId = req.user._id;
+  const { peerId } = req.body;
+
+  const chat = new Chat({
+    userIds: [userId, peerId],
+  });
+
+  chat.save()
+    .then(chat => res.status(200).json(chat));
+});
+
+export default router;
