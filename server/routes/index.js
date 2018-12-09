@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { verifyToken } from '../middleware/auth';
 import User from '../models/User';
 import Chat from '../models/Chat';
+import Message from './models/Message';
 
 const router = new Router();
 
@@ -60,7 +61,7 @@ router.get('/testUsers', function(req, res, next) {
 });
 
 router.get('/chats', verifyToken, (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   Chat.find({ userIds: userId })
     .exec()
@@ -68,7 +69,7 @@ router.get('/chats', verifyToken, (req, res) => {
 });
 
 router.post('/chats', verifyToken, (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
   const { peerId } = req.body;
 
   const chat = new Chat({
@@ -77,6 +78,36 @@ router.post('/chats', verifyToken, (req, res) => {
 
   chat.save()
     .then(chat => res.status(200).json(chat));
+});
+
+router.get('/chats/:chatId/messages', verifyToken, function(req, res) {
+  const userId = req.user.id;
+  const { chatId } = req.params;
+
+  Message.find({ chatId: chatId }).exec()
+    .then(messages => res.status(200).json(messages));
+});
+
+router.post('/chats/:chatId/messages', verifyToken, function(req, res) {
+  const userId = req.user.sub;
+  const { chatId } = req.params;
+  const { text } = req.body;
+
+  const message = new Message({
+    chatId,
+    userId,
+    text,
+  });
+
+  message.save()
+    .then(message => {
+      return Chat.findByIdAndUpdate(chatId, {
+        lastMessageId: message.id,
+        lastMessageCreated: message.created,
+      })
+      .then(() => message);
+    })
+    .then(message => res.status(200).json(message));
 });
 
 export default router;
