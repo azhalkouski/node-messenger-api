@@ -11,7 +11,7 @@ export const getChatMessages = (req, res, next) => {
 };
 
 export const createChatMessage = (req, res, next) => {
-  const userId = req.user.sub;
+  const userId = req.user.id;
   const { chatId } = req.params;
   const { text } = req.body;
 
@@ -25,7 +25,6 @@ export const createChatMessage = (req, res, next) => {
     .then(message => {
       return Chat.findByIdAndUpdate(chatId, {
         lastMessageId: message.id,
-        lastMessageCreated: message.created,
       })
       .then(() => message)
       .catch(err => next(err));
