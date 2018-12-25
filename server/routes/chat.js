@@ -1,12 +1,24 @@
+import uniq from 'lodash/uniq';
 import Chat from '../models/Chat';
+import Message from '../models/Message';
+import User from '../models/User';
 
-export const getChats = (req, res, next) => {
+const getAllUserIds = chats => chats.reduce((acc, chat) => acc.concat(chat.userIds), []);
+const getAllUniqUserIds = chats => uniq(getAllUserIds(chats));
+
+const getAllMessageIds = chats => chats.reduce((acc, chat) => acc.concat([chat.lastMessageId]), []);
+
+export const getChats = async (req, res, next) => {
   const userId = req.user.id;
+  const chats = await Chat.find({ userIds: userId }).exec();
+  const userIds = getAllUniqUserIds(chats);
+  const messageIds = getAllMessageIds(chats);
+  const [ users, messages ] = await Promise.all([
+    User.find({ _id: { $in: userIds } }).exec(),
+    Message.find({ _id: { $in: messageIds } }).exec(),
+  ]);
 
-  Chat.find({ userIds: userId })
-    .exec()
-    .then(chats => res.status(200).json(chats))
-    .catch(err => next(err));
+  res.status(200).json({ chats, users, messages });
 };
 
 export const createChat = (req, res, next) => {
