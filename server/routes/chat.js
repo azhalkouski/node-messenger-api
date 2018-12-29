@@ -8,7 +8,7 @@ const getAllUniqUserIds = chats => uniq(getAllUserIds(chats));
 
 const getAllMessageIds = chats => chats.reduce((acc, chat) => acc.concat([chat.lastMessageId]), []);
 
-export const getChats = async (req, res, next) => {
+export const getChats = async(req, res, next) => {
   const userId = req.user.id;
   const chats = await Chat.find({ userIds: userId }).exec();
   const userIds = getAllUniqUserIds(chats);
