@@ -19,6 +19,8 @@ export const authenticate = (req, res, next) => {
       try {
         const token = jwt.sign(user, config.jwt.secret, { audience: config.jwt.audience });
         res.status(200).json({
+          _id: user._id,
+          email: user.email,
           token,
         });
       } catch (error) {
