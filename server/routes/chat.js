@@ -33,3 +33,19 @@ export const createChat = (req, res, next) => {
     .then(chat => res.status(200).json(chat))
     .catch(err => next(err));
 };
+
+export const createChatByEmail = async(req, res, next) => {
+  const userId = req.user._id;
+  const peer = await User.findOne({ email: req.body.email });
+  //! TODO: handle error when peer's not found
+  const peerId = peer._id;
+
+  console.log(`Create chat by email ${req.body.email}`);
+
+  const chat = new Chat({
+    userIds: [userId, peerId],
+  });
+
+  chat.save()
+    .then(chat => res.status(200).json(chat));
+}
