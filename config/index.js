@@ -4,8 +4,11 @@ export default {
     secret: new Buffer.from('Tdygao7Z2UvjbybRd9N0jrdIxQhMHLhfh2IOPfyQ_17j1mF-3r2vi_u8wnIp0Xnjw5', 'base64'),
     audience: 'uAsgjhJKDHSFFHSDKJFfdsjH5PG3Oq',
   },
+  redis: {
+    host: process.env.NODE_ENV === 'production' ? 'redis' : 'localhost',
+  },
   mongoose: {
-    uri: 'mongodb://localhost/messenger',
+    host: process.env.NODE_ENV === 'production' ? 'mongo/messenger' : 'mongodb://localhost/messenger',
     options: {
       keepAlive: 1,
       useCreateIndex: true,
