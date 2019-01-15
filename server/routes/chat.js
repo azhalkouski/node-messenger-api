@@ -9,7 +9,7 @@ const getAllUniqUserIds = chats => uniq(getAllUserIds(chats));
 const getAllMessageIds = chats => chats.reduce((acc, chat) => acc.concat([chat.lastMessageId]), []);
 
 export const getChats = async(req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
   const chats = await Chat.find({ userIds: userId }).exec();
   const userIds = getAllUniqUserIds(chats);
   const messageIds = getAllMessageIds(chats);
@@ -36,7 +36,9 @@ export const createChat = (req, res, next) => {
 
 export const createChatByEmail = async(req, res, next) => {
   const userId = req.user._id;
+  console.log('userId', userId);
   const peer = await User.findOne({ email: req.body.email });
+  console.log('peer', peer);
   //! TODO: handle error when peer's not found
   const peerId = peer._id;
 
