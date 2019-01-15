@@ -8,7 +8,7 @@ import config from '../config';
 import routes from './routes';
 
 const app = express();
-mongoose.connect(config.mongoose.uri, config.mongoose.options);
+mongoose.connect(config.mongoose.host, config.mongoose.options);
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -26,7 +26,7 @@ app.use((err, req, res, next) => {
  */
 const server = http.Server(app);
 const io = socket(server);
-const redisSub = redis.createClient();
+const redisSub = redis.createClient({ host: config.redis.host });
 
 const getNewMessage = (clientUserId) => {
   return new Promise((resolve) => {

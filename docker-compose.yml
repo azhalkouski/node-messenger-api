@@ -1,0 +1,13 @@
+# version: "3" is for a Docker Swarm file
+# version: "2" for a single docker-compose.yml file
+version: '2'
+
+services:
+  api:
+    build: .
+    ports:
+     - "8080:8080"
+  redis:
+    image: redis:alpine
+  mongo:
+    image: mongo

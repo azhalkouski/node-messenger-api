@@ -1,8 +1,9 @@
 import redis from 'redis';
+import config from '../../config';
 import Message from '../models/Message';
 import Chat from '../models/Chat';
 
-const redisPub = redis.createClient();
+const redisPub = redis.createClient({ host: config.redis.host });
 
 export const getChatMessages = (req, res, next) => {
   const { chatId } = req.params;
