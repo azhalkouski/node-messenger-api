@@ -14,7 +14,7 @@ export const verifyToken = (req, res, next) => {
     if (err) return res.status(403).json({ message: 'Failed to authenticate token.' });
 
     req.user = {
-      id: decoded._id,
+      _id: decoded._id,
       email: decoded.email,
       password: decoded.password,
       audience: decoded.audience

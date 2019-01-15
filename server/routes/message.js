@@ -5,7 +5,6 @@ import Chat from '../models/Chat';
 const redisPub = redis.createClient();
 
 export const getChatMessages = (req, res, next) => {
-  const userId = req.user.id;
   const { chatId } = req.params;
 
   Message.find({ chatId: chatId }).exec()
@@ -14,7 +13,7 @@ export const getChatMessages = (req, res, next) => {
 };
 
 export const createChatMessage = async(req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
   const { chatId } = req.params;
   const { text } = req.body;
 
@@ -24,14 +23,14 @@ export const createChatMessage = async(req, res, next) => {
     text,
   }).save();
 
-  const chat = await Chat.findByIdAndUpdate(chatId, { $set: { lastMessageId: message.id } });
+  const chat = await Chat.findByIdAndUpdate(chatId, { $set: { lastMessageId: message._id } });
 
   res.status(200).json(message);
 
   const redisMessage = {
     type: 'message',
     toUserId: chat.userIds.filter(id => id !== userId)[0],
-    messageId: message.id,
+    messageId: message._id,
     chatId: chatId,
   };
 
