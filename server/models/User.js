@@ -26,7 +26,6 @@ const UserSchema = mongoose.Schema({
 }, {
   toObject: {
     transform: function (doc, ret) {
-      delete ret._id;
       delete ret.password;
       return ret;
     }
