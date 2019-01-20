@@ -36,7 +36,7 @@ export const createUser = async(req, res, next) => {
 
   } catch (error) {
 
-    if (err.code === 11000) {
+    if (error.code === 11000) {
       return res.status(400).json({
         ...createUserErrorMessage,
         message: {

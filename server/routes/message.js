@@ -18,22 +18,28 @@ export const createChatMessage = async(req, res, next) => {
   const { chatId } = req.params;
   const { text } = req.body;
 
-  const message = await new Message({
-    chatId,
-    userId,
-    text,
-  }).save();
+  try {
 
-  const chat = await Chat.findByIdAndUpdate(chatId, { $set: { lastMessageId: message._id } });
+    const message = await new Message({
+      chatId,
+      userId,
+      text,
+    }).save();
 
-  res.status(200).json(message);
+    const chat = await Chat.findByIdAndUpdate(chatId, { $set: { lastMessageId: message._id } });
 
-  const redisMessage = {
-    type: 'message',
-    toUserId: chat.userIds.filter(id => id !== userId)[0],
-    messageId: message._id,
-    chatId: chatId,
-  };
+    res.status(200).json(message);
 
-  redisPub.publish('r/new-message', JSON.stringify(redisMessage));
+    const redisMessage = {
+      type: 'message',
+      toUserId: chat.userIds.filter(id => id !== userId)[0],
+      messageId: message._id,
+      chatId: chatId,
+    };
+
+    redisPub.publish('r/new-message', JSON.stringify(redisMessage));
+
+  } catch (error) {
+    next(error);
+  }
 };

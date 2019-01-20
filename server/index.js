@@ -1,3 +1,5 @@
+/*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^next$" }]*/
+
 import express from 'express';
 import http from 'http';
 import socket from 'socket.io';
@@ -38,17 +40,17 @@ const getNewMessage = (clientUserId) => {
       }
     });
   });
-}
+};
 
 io.on('connection', (socket) => {
   socket.on('ws/listening', async({ userId }) => {
     console.log(`Client ${userId} listening for incomming messages`);
-    while (true) {
+    while (userId) {
       const newMessage = await getNewMessage(userId);
       console.log(`New message for client ${userId}: ${newMessage.messageId}`);
       socket.emit('ws/new-message', newMessage);
     }
-  })
+  });
 });
 
 redisSub.on('error', (err) => {
