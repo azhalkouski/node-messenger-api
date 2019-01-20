@@ -1,17 +1,30 @@
 import bcryptjs from 'bcryptjs';
 import User from '../models/User';
 import { isEmailValid, isPasswordValid } from '../utils/validate';
-import { authErrorMessage } from '../errorMessages';
+import { createUserErrorMessage } from '../errorMessages';
+import { EMAIL_IN_USE, EMAIL_NOT_VALID, PASSWORD_NOT_VALID } from '../constants';
 
 export const createUser = async(req, res, next) => {
   const { email, password } = req.body;
 
   if (!isEmailValid(email)) {
-    return res.status(400).json({ ...authErrorMessage, email: 'Email invalid.'});
+    return res.status(400).json({
+      ...createUserErrorMessage,
+      message: {
+        ...createUserErrorMessage.message,
+        email: EMAIL_NOT_VALID
+      },
+    });
   }
 
   if (!isPasswordValid(password)) {
-    return res.status(400).json({ ...authErrorMessage, password: 'Password invalid.'});
+    return res.status(400).json({
+      ...createUserErrorMessage,
+      message: {
+        ...createUserErrorMessage.message,
+        password: PASSWORD_NOT_VALID,
+      },
+    });
   }
 
   const hash = await bcryptjs.hash(password, 10);
@@ -24,7 +37,13 @@ export const createUser = async(req, res, next) => {
   } catch (error) {
 
     if (err.code === 11000) {
-      res.status(400).json({ ...authErrorMessage, email: 'Email is already in use.'});
+      return res.status(400).json({
+        ...createUserErrorMessage,
+        message: {
+          ...createUserErrorMessage.message,
+          email: EMAIL_IN_USE
+        },
+      });
     }
 
     next(error);

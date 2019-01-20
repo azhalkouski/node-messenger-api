@@ -2,6 +2,8 @@ import uniq from 'lodash/uniq';
 import Chat from '../models/Chat';
 import Message from '../models/Message';
 import User from '../models/User';
+import { createChatByEmailErrorMessage } from '../errorMessages';
+import { NO_USERS_WITH_SUCH_EMAIL, CHAT_ALREADY_EXISTS } from '../constants';
 
 const getAllUserIds = chats => chats.reduce((acc, chat) => acc.concat(chat.userIds), []);
 const getAllUniqUserIds = chats => uniq(getAllUserIds(chats));
@@ -39,15 +41,39 @@ export const createChatByEmail = async(req, res, next) => {
   console.log('userId', userId);
   const peer = await User.findOne({ email: req.body.email });
   console.log('peer', peer);
-  //! TODO: handle error when peer's not found
+
+  if (peer === null) {
+    return res.status(400).json({
+      ...createChatByEmailErrorMessage,
+      message: {
+        ...createChatByEmailErrorMessage.message,
+        email: NO_USERS_WITH_SUCH_EMAIL,
+      }
+    });
+  }
+
   const peerId = peer._id;
+  const existingChat = await Chat.findOne({
+    userIds: { $size: 2, $all: [userId, peerId] }
+  });
+
+  if (existingChat !== null) {
+    return res.status(400).json({
+      ...createChatByEmailErrorMessage,
+      message: {
+        ...createChatByEmailErrorMessage.message,
+        email: CHAT_ALREADY_EXISTS,
+      }
+    });
+  }
 
   console.log(`Create chat by email ${req.body.email}`);
 
-  const chat = new Chat({
-    userIds: [userId, peerId],
-  });
-
-  chat.save()
-    .then(chat => res.status(200).json(chat));
+  try {
+    const chat = await new Chat({ userIds: [userId, peerId] }).save();
+  
+    res.status(200).json(chat)
+  } catch (error) {
+    next(error);
+  }
 }
