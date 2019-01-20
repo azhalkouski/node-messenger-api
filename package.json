@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "node_modules/.bin/eslint server/ --ext .js -f table",
     "start": "./node_modules/.bin/nodemon ./index.js"
   },
   "keywords": [
@@ -25,6 +26,7 @@
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
     "@babel/register": "^7.0.0",
+    "eslint": "^5.12.1",
     "nodemon": "^1.18.7"
   },
   "dependencies": {
