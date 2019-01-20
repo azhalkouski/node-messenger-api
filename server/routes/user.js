@@ -1,4 +1,6 @@
 import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
 import User from '../models/User';
 import { isEmailValid, isPasswordValid } from '../utils/validate';
 import { createUserErrorMessage } from '../errorMessages';
@@ -32,7 +34,8 @@ export const createUser = async(req, res, next) => {
   try {
 
     const user = await new User({ email, password: hash }).save();
-    res.status(200).json(user);
+    const token = jwt.sign(user.toObject(), config.jwt.secret );
+    res.status(200).json({ ...user.toObject(), token });
 
   } catch (error) {
 

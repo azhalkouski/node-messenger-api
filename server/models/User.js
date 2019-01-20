@@ -23,6 +23,14 @@ const UserSchema = mongoose.Schema({
     type: String,
     default: 'online',
   },
+}, {
+  toObject: {
+    transform: function (doc, ret) {
+      delete ret._id;
+      delete ret.password;
+      return ret;
+    }
+  },
 });
 
 export default mongoose.model('User', UserSchema);
