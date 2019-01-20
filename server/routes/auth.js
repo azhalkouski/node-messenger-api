@@ -8,7 +8,7 @@ import { USER_NOT_FOUND, PASSWORD_WRONG } from '../constants';
 export const authenticate = async(req, res, next) => {
   try {
 
-    const user = await User.findOne({ email: req.body.email }).lean();
+    const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(404).json({
         ...authErrorMessage,
@@ -30,8 +30,8 @@ export const authenticate = async(req, res, next) => {
       });
     }
 
-    const token = jwt.sign(user, config.jwt.secret );
-    res.status(200).json({ ...user, token });
+    const token = jwt.sign(user.toObject(), config.jwt.secret );
+    res.status(200).json({ ...user.toObject(), token });
 
   } catch (error) {
     next(error);
