@@ -10,14 +10,12 @@ export const verifyToken = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, config.jwt.secret, { audience: config.jwt.audience }, (err, decoded) => {
+  jwt.verify(token, config.jwt.secret, (err, decoded) => {
     if (err) return res.status(403).json({ message: 'Failed to authenticate token.' });
 
     req.user = {
       _id: decoded._id,
       email: decoded.email,
-      password: decoded.password,
-      audience: decoded.audience
     };
 
     next();

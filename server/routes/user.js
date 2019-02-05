@@ -53,3 +53,16 @@ export const createUser = async(req, res, next) => {
 
   }
 };
+
+export const getUsers = async(req, res, next) => {
+  try {
+
+    const users = await User.find().exec();
+    res.status(200).json(users);
+
+  } catch (error) {
+
+    next(error);
+
+  }
+};
