@@ -26,7 +26,10 @@ export const createChatMessage = async(req, res, next) => {
       text,
     }).save();
 
-    const chat = await Chat.findByIdAndUpdate(chatId, { $set: { lastMessageId: message._id } });
+
+    const chat = await Chat.findByIdAndUpdate(chatId, {
+      $set: { lastMessageId: message._id, lastActive: Date.now() },
+    });
 
     res.status(200).json(message);
 

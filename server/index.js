@@ -47,8 +47,13 @@ io.on('connection', (socket) => {
     console.log(`Client ${userId} listening for incomming messages`);
     while (userId) {
       const newMessage = await getNewMessage(userId);
-      console.log(`New message for client ${userId}: ${newMessage.messageId}`);
-      socket.emit('ws/new-message', newMessage);
+      console.log(`New message for client ${userId}`);
+      
+      if (newMessage.type === 'message') {
+        socket.emit('ws/new-message', newMessage);
+      } else if (newMessage.type === 'chat') {
+        socket.emit('ws/new-chat', newMessage);
+      }
     }
   });
 });

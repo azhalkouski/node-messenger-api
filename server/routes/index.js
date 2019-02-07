@@ -14,6 +14,8 @@ router.post('/users', createUser);
 
 router.get('/chats', verifyToken, getChats);
 router.post('/chats', verifyToken, createChat);
+
+// this route is likely to be deleted
 router.post('/chatsByEmail', verifyToken, createChatByEmail);
 
 router.get('/chats/:chatId/messages', verifyToken, getChatMessages);
