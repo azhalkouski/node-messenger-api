@@ -11,5 +11,5 @@ export const PASSWORD_NOT_VALID = 'Password invalid.';
 
 // Create chat by email
 export const CREATE_CHAT_BY_EMAIL_ERROR_TYPE = 'CREATE_CHAT_BY_EMAIL_ERROR_TYPE';
-export const NO_USERS_WITH_SUCH_EMAIL = 'There are no users with specified email.';
-export const CHAT_ALREADY_EXISTS = 'You are already have chat with user with specified email.';
+export const NO_SUCH_USER = 'The specified user not found.';
+export const CHAT_ALREADY_EXISTS = 'You are already have chat with this user.';

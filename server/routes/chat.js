@@ -1,9 +1,13 @@
 import uniq from 'lodash/uniq';
+import redis from 'redis';
 import Chat from '../models/Chat';
 import Message from '../models/Message';
 import User from '../models/User';
-import { createChatByEmailErrorMessage } from '../errorMessages';
-import { NO_USERS_WITH_SUCH_EMAIL, CHAT_ALREADY_EXISTS } from '../constants';
+import config from '../../config';
+import { createChatByEmailErrorMessage, createChatErrorMessage } from '../errorMessages';
+import { NO_SUCH_USER, CHAT_ALREADY_EXISTS } from '../constants';
+
+const redisPub = redis.createClient({ host: config.redis.host });
 
 const getAllUserIds = chats => chats.reduce((acc, chat) => acc.concat(chat.userIds), []);
 const getAllUniqUserIds = chats => uniq(getAllUserIds(chats));
@@ -29,19 +33,49 @@ export const getChats = async(req, res, next) => {
   }
 };
 
-export const createChat = (req, res, next) => {
-  const userId = req.user.id;
+export const createChat = async (req, res, next) => {
+  const userId = req.user._id;
   const { peerId } = req.body;
 
-  const chat = new Chat({
-    userIds: [userId, peerId],
-  });
+  try {
 
-  chat.save()
-    .then(chat => res.status(200).json(chat))
-    .catch(err => next(err));
+    const peer = await User.findOne({ _id: peerId });
+    if (peer === null) {
+      return res.status(400).json({
+        ...createChatErrorMessage,
+        message: NO_SUCH_USER,
+      });
+    }
+
+    const existingChat = await Chat.findOne({
+      userIds: { $size: 2, $all: [userId, peerId] }
+    });
+  
+    if (existingChat !== null) {
+      return res.status(400).json({
+        ...createChatErrorMessage,
+        message: CHAT_ALREADY_EXISTS,
+      });
+    }
+
+    const chat = await new Chat({ userIds: [userId, peerId] }).save();
+    res.status(200).json(chat);
+
+    const redisMessage = {
+      type: 'chat',
+      toUserId: peerId,
+      chatId: chat._id,
+    };
+
+    redisPub.publish('r/new-message', JSON.stringify(redisMessage));
+
+  } catch (error) {
+    next(error);
+  }
+
 };
 
+// this function is likely to be deleted
 export const createChatByEmail = async(req, res, next) => {
   const userId = req.user._id;
   const peer = await User.findOne({ email: req.body.email });
@@ -49,10 +83,7 @@ export const createChatByEmail = async(req, res, next) => {
   if (peer === null) {
     return res.status(400).json({
       ...createChatByEmailErrorMessage,
-      message: {
-        ...createChatByEmailErrorMessage.message,
-        email: NO_USERS_WITH_SUCH_EMAIL,
-      }
+      message: NO_SUCH_USER,
     });
   }
 
@@ -64,10 +95,7 @@ export const createChatByEmail = async(req, res, next) => {
   if (existingChat !== null) {
     return res.status(400).json({
       ...createChatByEmailErrorMessage,
-      message: {
-        ...createChatByEmailErrorMessage.message,
-        email: CHAT_ALREADY_EXISTS,
-      }
+      message: CHAT_ALREADY_EXISTS,
     });
   }
 

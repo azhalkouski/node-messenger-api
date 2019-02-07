@@ -2,6 +2,7 @@ import {
   AUTH_ERROR_TYPE,
   CREATE_USER_ERROR_TYPE,
   CREATE_CHAT_BY_EMAIL_ERROR_TYPE,
+  CREATE_CHAT_ERROR_TYPE,
 } from '../constants';
 
 export const authErrorMessage = {
@@ -22,8 +23,10 @@ export const createUserErrorMessage = {
 
 export const createChatByEmailErrorMessage = {
   type: CREATE_CHAT_BY_EMAIL_ERROR_TYPE,
-  message: {
-    email: '',
-    password: '',
-  }
+  message: '',
+};
+
+export const createChatErrorMessage = {
+  type: CREATE_CHAT_ERROR_TYPE,
+  message: '',
 };
